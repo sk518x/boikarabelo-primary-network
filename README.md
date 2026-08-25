@@ -133,8 +133,8 @@ boikarabelo-primary-network/
 │   ├── network-design.md
 │   └── ip-addressing-plan.md
 └── diagrams/
-    ├── physical-topology.png
-    └── logical-topology.png
+    ├── physical-topology.jpg
+    └── logical-topology.jpg
 ```
 
 ## Academic Project Notice
