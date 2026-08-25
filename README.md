@@ -137,6 +137,6 @@ boikarabelo-primary-network/
     └── logical-topology.jpg
 ```
 
-## Academic Project Notice
+## Academic Integrity
 
-This repository contains work completed as part of an academic project for CMPG 325 – Computer Networks.
+This repository documents individual coursework for CMPG 325 (Project ID: CMPG325-2026-024). Boikarabelo Primary School is a client scenario assigned by the module and is not an active commercial engagement.
