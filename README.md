@@ -7,6 +7,7 @@
 **Client:** Boikarabelo Primary School (Potchefstroom)  
 **Client ID:** CLI-024  
 **Industry:** Education  
+**Author:** Sesethu K
 
 ---
 
