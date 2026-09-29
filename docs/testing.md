@@ -12,7 +12,7 @@ The VLAN configuration was checked using:
 show vlan brief
 ```
 
-The required VLANs were verified on the switches:
+The required VLANs were verified:
 
 * VLAN 10 – Admin
 * VLAN 20 – Staff
@@ -29,17 +29,10 @@ Evidence:
 
 ### Admin → Staff
 
-Source:
+**Source:** `PC-ADMIN`
+**Destination:** `172.30.4.66`
 
-`PC-ADMIN`
-
-Destination:
-
-`172.30.4.66`
-
-Result:
-
-**Successful — 4/4 packets received, 0% packet loss.**
+**Result:** Successful — 4/4 packets received, 0% packet loss.
 
 Evidence:
 
@@ -47,17 +40,10 @@ Evidence:
 
 ### Admin → Lab
 
-Source:
+**Source:** `PC-ADMIN`
+**Destination:** `172.30.4.2`
 
-`PC-ADMIN`
-
-Destination:
-
-`172.30.4.2`
-
-Result:
-
-**Successful — 4/4 packets received, 0% packet loss.**
+**Result:** Successful — 4/4 packets received, 0% packet loss.
 
 Evidence:
 
@@ -65,17 +51,10 @@ Evidence:
 
 ### Admin → Library
 
-Source:
+**Source:** `PC-ADMIN`
+**Destination:** `172.30.4.226`
 
-`PC-ADMIN`
-
-Destination:
-
-`172.30.4.226`
-
-Result:
-
-**Successful — 4/4 packets received, 0% packet loss.**
+**Result:** Successful — 4/4 packets received, 0% packet loss.
 
 Evidence:
 
@@ -87,17 +66,10 @@ These tests verify IPv4 connectivity between the Admin network and the Staff, La
 
 ### Admin → Staff
 
-Source:
+**Source:** `PC-ADMIN`
+**Destination:** `2001:DB8:AC30:2::10`
 
-`PC-ADMIN`
-
-Destination:
-
-`2001:DB8:AC30:2::10`
-
-Result:
-
-**Successful — 4/4 packets received, 0% packet loss.**
+**Result:** Successful — 4/4 packets received, 0% packet loss.
 
 Evidence:
 
@@ -105,17 +77,10 @@ Evidence:
 
 ### Lab → Admin
 
-Source:
+**Source:** `PC-LAB`
+**Destination:** `2001:DB8:AC30:1::10`
 
-`PC-LAB`
-
-Destination:
-
-`2001:DB8:AC30:1::10`
-
-Result:
-
-**Successful — 4/4 packets received, 0% packet loss.**
+**Result:** Successful — 4/4 packets received, 0% packet loss.
 
 Evidence:
 
@@ -136,6 +101,8 @@ The routing table contained connected routes for the configured VLAN IPv6 networ
 Evidence:
 
 `../evidence/ipv6/ipv6-routing-table.png`
+
+This confirms that R1 has IPv6 routes for the configured VLAN networks.
 
 ## 6. Guest Isolation Verification
 
@@ -200,4 +167,4 @@ The successful connection confirms that SSH remote management is operational.
 
 ## 9. Conclusion
 
-The testing confirms the main implemented networking functions required for Milestone 2, including VLAN segmentation, IPv4 connectivity, IPv6 connectivity and routing, Guest network isolation and SSH-based remote management.
+The testing confirms the main implemented networking functions required for Milestone 2, including VLAN segmentation, IPv4 connectivity, IPv6 connectivity and routing, Guest network isolation configuration and SSH-based remote management.
