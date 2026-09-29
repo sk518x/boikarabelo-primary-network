@@ -1,74 +1,147 @@
 # CMPG 325 Computer Networks Project
 
-## Boikarabelo Primary School Network Design
+## Boikarabelo Primary School Network Design and Implementation
 
-**Module:** CMPG 325 – Computer Networks  
-**Project Type:** Individual Semester Project  
-**Client:** Boikarabelo Primary School (Potchefstroom)  
-**Client ID:** CLI-024  
-**Industry:** Education  
+**Module:** CMPG 325 – Computer Networks
+**Project Type:** Individual Semester Project
+**Project ID:** CMPG325-2026-024
+**Client:** Boikarabelo Primary School (Potchefstroom)
+**Client ID:** CLI-024
+**Industry:** Education
 **Author:** Sesethu K
 
 ---
 
 ## 1. Project Overview
 
-This project involves the design and later implementation of a computer network for Boikarabelo Primary School in Potchefstroom.
+This project involves the design and implementation of a computer network for **Boikarabelo Primary School (Potchefstroom)**.
 
-The solution addresses the client's connectivity requirements, IPv4 addressing, IPv6 dual-stack addressing and routing, remote network-device management, and Guest Wi-Fi isolation.
+The network was designed according to the CMPG 325 project requirements and implemented and tested using Cisco Packet Tracer.
 
-The network is designed for implementation and testing in Cisco Packet Tracer.
+The solution provides:
+
+* IPv4 addressing using the assigned `172.30.4.0/23` block
+* IPv4 VLSM subnetting
+* IPv6 dual-stack addressing and routing
+* VLAN-based network segmentation
+* Inter-VLAN routing
+* Wired network connectivity
+* Guest Wi-Fi
+* Guest network isolation from internal school resources
+* Dedicated network-device management
+* SSH remote management
+* IPv4 and IPv6 connectivity testing
 
 ---
 
 ## 2. Client Requirements
 
-The project is based on the requirements in the CMPG 325 project brief:
+The project requires a network solution that provides appropriate connectivity for the school while separating different user groups.
 
-- Assigned IPv4 block: `172.30.4.0/23`
-- IPv6 dual-stack addressing and routing
-- Remote management of network devices for an off-site IT contractor
-- Guest Wi-Fi for visitors, isolated from internal resources
-- A working and testable Packet Tracer implementation
+The main requirements addressed by this implementation are:
+
+* Use of the assigned IPv4 block `172.30.4.0/23`
+* Separate VLANs for the different school/user groups
+* IPv4 and IPv6 dual-stack networking
+* IPv6 subnet addressing and routing as the assigned networking challenge
+* Remote management of network devices
+* Guest Wi-Fi for visitors
+* Isolation of Guest users from internal school resources
+* A working and testable Cisco Packet Tracer implementation
+
+The client requirements document identifies a dedicated Management VLAN and a separate Guest Wi-Fi network.
 
 ---
 
 ## 3. Network Segmentation
 
-| VLAN | Name | Purpose |
-|------|------|---------|
-| 10 | Admin | Administration users |
-| 20 | Staff | Teachers and staff |
-| 30 | Lab | Student computer laboratory |
-| 40 | Library | Library/media computers |
-| 50 | Guest | Visitor Wi-Fi |
-| 99 | Management | Network-device management |
+The network is divided into separate VLANs to provide logical separation between different user groups and network functions.
+
+| VLAN | Name       | Purpose                     |
+| ---- | ---------- | --------------------------- |
+| 10   | Admin      | Administration users        |
+| 20   | Staff      | Teachers and staff          |
+| 30   | Lab        | Student computer laboratory |
+| 40   | Library    | Library/media computers     |
+| 50   | Guest      | Visitor Wi-Fi               |
+| 99   | Management | Network-device management   |
+
+This segmentation supports the requirement to separate user groups and isolate Guest users from internal school resources.
 
 ---
 
-## 4. Proposed Network Design
+## 4. Physical Network Design
 
-The proposed physical design contains:
+The implemented topology consists of:
 
-- 1 edge router (R1)
-- 1 core switch (SW1)
-- 4 access switches (SW2–SW5)
-- 1 wireless access point (AP1)
-- Representative end-user devices
+* **R1** – Router and inter-VLAN routing
+* **SW1** – Core switch
+* **SW2** – Admin access switch
+* **SW3** – Staff access switch
+* **SW4** – Lab access switch
+* **SW5** – Library and Guest access switch
+* **AP1** – Guest wireless access point
+* Representative wired end-user devices
+* Representative Guest wireless device
 
-The four access switches provide dedicated access for Admin, Staff, Lab, and Library areas. The wireless access point provides the Guest network.
+The main topology is:
 
-R1 provides inter-VLAN routing for IPv4 and IPv6 in the proposed design.
+```text
+                         R1
+                         |
+                    802.1Q Trunk
+                         |
+                        SW1
+              ___________|____________
+             |        |       |       |
+            SW2      SW3     SW4     SW5
+             |        |       |      /  \
+           Admin    Staff    Lab    /    \
+                                  /        \
+                           PC-LIBRARY       AP1
+                                             |
+                                      ~~~ Wi-Fi ~~~
+                                             |
+                                      GUEST-DEVICE
+```
+
+R1 uses router-on-a-stick inter-VLAN routing. The connection between R1 and SW1 carries the VLAN traffic using 802.1Q trunking.
+
+SW1 provides the core switching function and connects the access switches.
+
+SW5 provides wired connectivity for the Library network and a separate connection to AP1 for the Guest Wi-Fi network.
 
 ---
 
 ## 5. IPv4 Addressing
 
-The assigned IPv4 block is:
+The assigned IPv4 address block is:
 
-`172.30.4.0/23`
+```text
+172.30.4.0/23
+```
 
-VLSM is used to allocate separate networks for the VLANs. See `docs/ip-addressing-plan.md` for the complete table.
+VLSM was used to divide the address block into separate networks for the VLANs.
+
+| VLAN          | Network        | Prefix | Gateway        |
+| ------------- | -------------- | ------ | -------------- |
+| 30 Lab        | `172.30.4.0`   | `/26`  | `172.30.4.1`   |
+| 20 Staff      | `172.30.4.64`  | `/26`  | `172.30.4.65`  |
+| 50 Guest      | `172.30.4.128` | `/26`  | `172.30.4.129` |
+| 10 Admin      | `172.30.4.192` | `/27`  | `172.30.4.193` |
+| 40 Library    | `172.30.4.224` | `/27`  | `172.30.4.225` |
+| 99 Management | `172.30.5.0`   | `/28`  | `172.30.5.1`   |
+
+The WAN network is:
+
+```text
+172.30.5.16/30
+```
+
+with:
+
+* R1: `172.30.5.17`
+* ISP: `172.30.5.18`
 
 ---
 
@@ -76,67 +149,325 @@ VLSM is used to allocate separate networks for the VLANs. See `docs/ip-addressin
 
 IPv6 dual-stack addressing and routing is the assigned networking challenge.
 
-For Milestone 1, the proposed IPv6 parent documentation prefix is:
+The assigned IPv6 block is:
 
-`2001:db8:ac30:0::/60`
+```text
+2001:DB8:AC30::/48
+```
 
-Each VLAN is allocated a `/64`:
+A `/60` sub-block was selected for the network design:
 
-- VLAN 10: `2001:db8:ac30:1::/64`
-- VLAN 20: `2001:db8:ac30:2::/64`
-- VLAN 30: `2001:db8:ac30:3::/64`
-- VLAN 40: `2001:db8:ac30:4::/64`
-- VLAN 50: `2001:db8:ac30:5::/64`
-- VLAN 99: `2001:db8:ac30:6::/64`
+```text
+2001:DB8:AC30:0::/60
+```
 
-This is a proposed documentation address plan, not an IPv6 block explicitly supplied in the project brief.
+This `/60` is a design choice within the assigned `/48`. It is divided into `/64` networks for the VLANs.
+
+| VLAN          | IPv6 Network           | Gateway              |
+| ------------- | ---------------------- | -------------------- |
+| 10 Admin      | `2001:DB8:AC30:1::/64` | `2001:DB8:AC30:1::1` |
+| 20 Staff      | `2001:DB8:AC30:2::/64` | `2001:DB8:AC30:2::1` |
+| 30 Lab        | `2001:DB8:AC30:3::/64` | `2001:DB8:AC30:3::1` |
+| 40 Library    | `2001:DB8:AC30:4::/64` | `2001:DB8:AC30:4::1` |
+| 50 Guest      | `2001:DB8:AC30:5::/64` | `2001:DB8:AC30:5::1` |
+| 99 Management | `2001:DB8:AC30:6::/64` | `2001:DB8:AC30:6::1` |
+
+IPv6 forwarding is enabled on R1 using:
+
+```text
+ipv6 unicast-routing
+```
+
+The IPv6 routing table was verified using:
+
+```text
+show ipv6 route
+```
+
+The VLAN IPv6 networks appear as directly connected routes on R1.
 
 ---
 
-## 7. Remote Management
+## 7. Inter-VLAN Routing
 
-VLAN 99 is reserved for network-device management.
+R1 performs inter-VLAN routing using router-on-a-stick.
 
-The final implementation will use SSH for secure remote management.
+The configured R1 subinterfaces are:
+
+```text
+Gi0/0.10
+Gi0/0.20
+Gi0/0.30
+Gi0/0.40
+Gi0/0.50
+Gi0/0.99
+```
+
+Each subinterface uses 802.1Q encapsulation for its corresponding VLAN.
+
+For example:
+
+```text
+interface gigabitEthernet 0/0.10
+ encapsulation dot1Q 10
+ ip address 172.30.4.193 255.255.255.224
+```
+
+The same approach is used for the remaining VLANs.
 
 ---
 
-## 8. Guest Wi-Fi Isolation
+## 8. Guest Wi-Fi and Isolation
 
 VLAN 50 is dedicated to Guest Wi-Fi.
 
-The final implementation will use access-control rules to prevent Guest users from accessing internal school resources while permitting the required external connectivity.
+The wireless access point uses the SSID:
+
+```text
+GUEST
+```
+
+The Guest IPv4 network is:
+
+```text
+Network: 172.30.4.128/26
+Gateway: 172.30.4.129
+```
+
+An extended IPv4 ACL named `GUEST_ISOLATION` was configured on R1.
+
+The ACL denies Guest traffic to the internal:
+
+* Admin network
+* Staff network
+* Lab network
+* Library network
+* Management network
+
+The ACL is applied inbound to the Guest subinterface:
+
+```text
+interface gigabitEthernet 0/0.50
+ ip access-group GUEST_ISOLATION in
+```
+
+The ACL was verified using:
+
+```text
+show access-lists GUEST_ISOLATION
+```
+
+This implements the requirement that Guest Wi-Fi be isolated from internal school resources.
 
 ---
 
-## 9. Milestone 1 Evidence
+## 9. Remote Network Management
 
-Milestone 1 focuses on:
+VLAN 99 is dedicated to network-device management.
 
-- Client requirements
-- Physical topology
-- Logical topology
-- IP addressing plan
-- Initial GitHub repository
+| Device | Management IP |
+| ------ | ------------- |
+| R1     | `172.30.5.1`  |
+| SW2    | `172.30.5.2`  |
+| SW3    | `172.30.5.3`  |
+| SW4    | `172.30.5.4`  |
+| SW5    | `172.30.5.5`  |
 
-The Packet Tracer implementation and testing evidence will be added during Milestone 2.
+SSH was configured for secure remote management.
+
+The VTY configuration includes:
+
+```text
+line vty 0 4
+ login local
+ transport input ssh
+```
+
+SSH was tested from PC-ADMIN to the network devices, including R1 and the access switches.
 
 ---
 
-## 10. Repository Structure
+## 10. Testing and Verification
+
+Testing was performed in Cisco Packet Tracer after implementation.
+
+### VLAN Verification
+
+The VLAN configuration was verified using:
+
+```text
+show vlan brief
+```
+
+The required VLANs were confirmed on the switches.
+
+### IPv4 Connectivity
+
+The following IPv4 connectivity tests were performed:
+
+| Source   | Destination | Result     |
+| -------- | ----------- | ---------- |
+| PC-ADMIN | PC-STAFF    | Successful |
+| PC-ADMIN | PC-LAB      | Successful |
+| PC-ADMIN | PC-LIBRARY  | Successful |
+
+The tests demonstrated IPv4 connectivity between the relevant VLANs through R1.
+
+### IPv6 Connectivity
+
+The following IPv6 tests were performed:
+
+| Source   | Destination | Result     |
+| -------- | ----------- | ---------- |
+| PC-ADMIN | PC-STAFF    | Successful |
+| PC-LAB   | PC-ADMIN    | Successful |
+
+The tests demonstrated IPv6 connectivity between separate VLANs.
+
+### IPv6 Routing
+
+R1 was checked using:
+
+```text
+show ipv6 interface brief
+show ipv6 route
+```
+
+The configured IPv6 interfaces and connected VLAN routes were verified.
+
+### Guest Isolation
+
+The Guest isolation ACL was checked using:
+
+```text
+show access-lists GUEST_ISOLATION
+```
+
+The configuration confirms that Guest traffic is denied access to the specified internal networks.
+
+### SSH
+
+SSH configuration and connectivity were tested from PC-ADMIN.
+
+The successful SSH test confirms that remote management is operational.
+
+Detailed testing information is documented in [`docs/testing.md`](docs/testing.md).
+
+---
+
+## 11. Assigned Networking Challenge
+
+The assigned networking challenge is:
+
+**IPv6 subnet addressing and routing**
+
+The implementation addresses this challenge by:
+
+1. Using the assigned IPv6 `/48` block.
+2. Selecting a `/60` sub-block for the network design.
+3. Creating separate `/64` networks for the VLANs.
+4. Assigning IPv6 gateway addresses to the R1 VLAN subinterfaces.
+5. Enabling IPv6 forwarding.
+6. Verifying the IPv6 routing table.
+7. Testing IPv6 connectivity between VLANs.
+
+---
+
+## 12. Implementation Documentation
+
+Detailed implementation information is available in:
+
+[`docs/implementation.md`](docs/implementation.md)
+
+This document records the implemented devices, VLANs, IPv4 and IPv6 addressing, inter-VLAN routing, Guest Wi-Fi isolation and SSH configuration.
+
+---
+
+## 13. Evidence
+
+Supporting implementation and testing evidence is organised into the following directories:
+
+```text
+evidence/
+├── topology/
+├── vlan/
+├── ipv4/
+├── ipv6/
+├── security/
+└── ssh/
+```
+
+The evidence includes screenshots covering:
+
+* Network topology
+* VLAN configuration
+* IPv4 connectivity
+* IPv6 connectivity
+* IPv6 routing
+* Guest isolation
+* SSH configuration
+* SSH connectivity
+
+---
+
+## 14. Repository Structure
 
 ```text
 boikarabelo-primary-network/
+│
 ├── README.md
+│
+├── CMPG325-2026-024_Milestone2.pkt
+│
 ├── docs/
 │   ├── client-requirements.md
 │   ├── network-design.md
-│   └── ip-addressing-plan.md
-└── diagrams/
-    ├── physical-topology.jpg
-    └── logical-topology.jpg
+│   ├── ip-addressing-plan.md
+│   ├── implementation.md
+│   └── testing.md
+│
+├── diagrams/
+│   ├── physical-topology.jpg
+│   └── logical-topology.jpg
+│
+└── evidence/
+    ├── topology/
+    ├── vlan/
+    ├── ipv4/
+    ├── ipv6/
+    ├── security/
+    └── ssh/
 ```
+
+---
+
+## 15. Conclusion
+
+The Milestone 2 implementation provides a segmented dual-stack network for Boikarabelo Primary School.
+
+The implemented solution includes:
+
+* VLAN-based network segmentation
+* IPv4 VLSM addressing
+* IPv6 `/64` subnet allocation
+* Inter-VLAN routing
+* Guest Wi-Fi
+* Guest isolation using an ACL
+* Dedicated network-device management
+* SSH remote management
+* IPv4 connectivity testing
+* IPv6 connectivity testing
+* IPv6 routing verification
+
+The network was implemented and tested in Cisco Packet Tracer according to the CMPG 325 project requirements.
+
+---
 
 ## Academic Integrity
 
-This repository documents individual coursework for CMPG 325 (Project ID: CMPG325-2026-024). Boikarabelo Primary School is a client scenario assigned by the module and is not an active commercial engagement.
+This repository documents individual coursework for CMPG 325 (Project ID: CMPG325-2026-024).
+
+Boikarabelo Primary School (Potchefstroom) is a client scenario assigned by the module and is not an active commercial engagement.
+
+The implementation, configurations, testing and documentation represent the student's own coursework and learning process.
+
