@@ -19,6 +19,8 @@ The implemented topology contains:
 * AP1 – Guest wireless access point
 * Representative wired and wireless end devices
 
+SW5 provides wired connectivity for the Library network and a separate connection to AP1 for the Guest Wi-Fi network.
+
 ## VLAN Configuration
 
 The following VLANs were implemented:
@@ -57,11 +59,20 @@ The implementation uses the selected `/60` design sub-block:
 
 Each VLAN was assigned a `/64` IPv6 network.
 
-R1 was configured with IPv6 gateway addresses for each VLAN and IPv6 forwarding was enabled.
+R1 was configured with IPv6 gateway addresses for each VLAN, and IPv6 forwarding was enabled.
+
+The IPv6 gateway addresses are:
+
+* VLAN 10: `2001:DB8:AC30:1::1/64`
+* VLAN 20: `2001:DB8:AC30:2::1/64`
+* VLAN 30: `2001:DB8:AC30:3::1/64`
+* VLAN 40: `2001:DB8:AC30:4::1/64`
+* VLAN 50: `2001:DB8:AC30:5::1/64`
+* VLAN 99: `2001:DB8:AC30:6::1/64`
 
 ## Inter-VLAN Routing
 
-R1 uses router-on-a-stick configuration with 802.1Q subinterfaces.
+R1 uses a router-on-a-stick configuration with 802.1Q subinterfaces.
 
 The VLAN subinterfaces are:
 
@@ -72,19 +83,27 @@ The VLAN subinterfaces are:
 * `Gi0/0.50`
 * `Gi0/0.99`
 
+These subinterfaces provide the default gateways and enable communication between the VLANs.
+
 ## Guest Wi-Fi
 
 VLAN 50 provides the Guest Wi-Fi network.
 
 The wireless access point uses the `GUEST` SSID.
 
-An extended ACL named `GUEST_ISOLATION` is applied inbound to `Gi0/0.50` to prevent Guest traffic from accessing the internal school networks.
+An extended ACL named `GUEST_ISOLATION` is applied inbound to `Gi0/0.50`.
+
+The ACL blocks traffic from the Guest network to the internal Admin, Staff, Lab, Library, and Management networks while permitting other IP traffic.
+
+This implements the client change request requiring Guest Wi-Fi to be isolated from internal school resources.
 
 ## Remote Management
 
 VLAN 99 is used for network-device management.
 
-SSH was configured on R1 and the access switches. SSH testing was performed from PC-ADMIN to the network devices.
+SSH was configured on R1 and the access switches.
+
+SSH connectivity was tested from PC-ADMIN to R1 and the access switches, confirming that the network devices can be remotely managed using SSH.
 
 ## Verification
 
@@ -98,4 +117,22 @@ show ipv6 route
 show access-lists GUEST_ISOLATION
 ```
 
-Connectivity was also tested using IPv4 and IPv6 ping tests.
+Connectivity was also tested using IPv4 and IPv6 ping tests between representative devices on different VLANs.
+
+IPv4 connectivity was verified between:
+
+* Admin and Staff
+* Admin and Lab
+* Admin and Library
+
+IPv6 connectivity was verified between:
+
+* Admin and Staff
+* Lab and Admin
+
+The IPv6 routing table was also checked to confirm that the six configured IPv6 VLAN networks were directly connected to R1.
+
+Guest isolation was verified through the configured `GUEST_ISOLATION` ACL, which denies Guest traffic to the internal school networks.
+
+SSH access was verified from PC-ADMIN to R1 and SW2–SW5.
+
