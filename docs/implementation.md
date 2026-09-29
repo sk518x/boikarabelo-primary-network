@@ -1,0 +1,101 @@
+# Milestone 2 Implementation
+
+## Overview
+
+This document records the implementation of the Boikarabelo Primary School network in Cisco Packet Tracer.
+
+The implementation follows the network design developed for CMPG 325 Project ID CMPG325-2026-024.
+
+## Network Devices
+
+The implemented topology contains:
+
+* R1 – Router and inter-VLAN routing
+* SW1 – Core switch
+* SW2 – Admin access switch
+* SW3 – Staff access switch
+* SW4 – Lab access switch
+* SW5 – Library and Guest access switch
+* AP1 – Guest wireless access point
+* Representative wired and wireless end devices
+
+## VLAN Configuration
+
+The following VLANs were implemented:
+
+| VLAN | Name       | Purpose                     |
+| ---- | ---------- | --------------------------- |
+| 10   | Admin      | Administration              |
+| 20   | Staff      | Teachers and staff          |
+| 30   | Lab        | Student computer laboratory |
+| 40   | Library    | Library/media computers     |
+| 50   | Guest      | Visitor Wi-Fi               |
+| 99   | Management | Network-device management   |
+
+## IPv4 Implementation
+
+The assigned `172.30.4.0/23` address block was subnetted using VLSM.
+
+The VLAN gateway addresses configured on R1 are:
+
+* VLAN 10: `172.30.4.193/27`
+* VLAN 20: `172.30.4.65/26`
+* VLAN 30: `172.30.4.1/26`
+* VLAN 40: `172.30.4.225/27`
+* VLAN 50: `172.30.4.129/26`
+* VLAN 99: `172.30.5.1/28`
+
+## IPv6 Implementation
+
+The assigned IPv6 block is:
+
+`2001:DB8:AC30::/48`
+
+The implementation uses the selected `/60` design sub-block:
+
+`2001:DB8:AC30:0::/60`
+
+Each VLAN was assigned a `/64` IPv6 network.
+
+R1 was configured with IPv6 gateway addresses for each VLAN and IPv6 forwarding was enabled.
+
+## Inter-VLAN Routing
+
+R1 uses router-on-a-stick configuration with 802.1Q subinterfaces.
+
+The VLAN subinterfaces are:
+
+* `Gi0/0.10`
+* `Gi0/0.20`
+* `Gi0/0.30`
+* `Gi0/0.40`
+* `Gi0/0.50`
+* `Gi0/0.99`
+
+## Guest Wi-Fi
+
+VLAN 50 provides the Guest Wi-Fi network.
+
+The wireless access point uses the `GUEST` SSID.
+
+An extended ACL named `GUEST_ISOLATION` is applied inbound to `Gi0/0.50` to prevent Guest traffic from accessing the internal school networks.
+
+## Remote Management
+
+VLAN 99 is used for network-device management.
+
+SSH was configured on R1 and the access switches. SSH testing was performed from PC-ADMIN to the network devices.
+
+## Verification
+
+The implementation was verified using Cisco IOS commands including:
+
+```text
+show vlan brief
+show ip interface brief
+show ipv6 interface brief
+show ipv6 route
+show access-lists GUEST_ISOLATION
+```
+
+Connectivity was also tested using IPv4 and IPv6 ping tests.
