@@ -97,6 +97,22 @@ The ACL blocks traffic from the Guest network to the internal Admin, Staff, Lab,
 
 This implements the client change request requiring Guest Wi-Fi to be isolated from internal school resources.
 
+### Guest Wi-Fi Security
+
+VLAN 50 is reserved for Guest Wi-Fi. Guest traffic is isolated from the internal school networks using access-control rules on R1.
+
+For IPv4 traffic, the `GUEST_ISOLATION` extended access-control list prevents Guest clients from reaching the Admin, Staff, Lab, Library and Management IPv4 networks.
+
+For IPv6 traffic, the `GUEST_V6_ISOLATION` IPv6 access-control list prevents Guest clients from reaching the internal IPv6 networks. The IPv6 access-control list is applied inbound on the Guest subinterface:
+
+```text
+interface gigabitEthernet 0/0.50
+ipv6 traffic-filter GUEST_V6_ISOLATION in
+```
+
+Guest isolation was tested using both IPv4 and IPv6 connectivity tests. Guest clients could reach their respective Guest gateway but were prevented from accessing the internal school networks.
+
+
 ## Remote Management
 
 VLAN 99 is used for network-device management.
