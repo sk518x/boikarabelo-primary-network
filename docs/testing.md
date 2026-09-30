@@ -1,18 +1,14 @@
-# Milestone 2 Testing
+# Testing and Verification
 
 ## 1. Purpose
 
-Testing was performed in Cisco Packet Tracer to verify that the implemented network provides the required connectivity, IPv6 functionality, Guest isolation and remote network management.
+Testing was performed to verify that the implemented network meets the client requirements and that the configured VLANs, IPv4 addressing, IPv6 addressing, routing, Guest Wi-Fi isolation and SSH remote management operate as intended.
 
 ## 2. VLAN Verification
 
-The VLAN configuration was checked using:
+The VLAN configuration was verified on the switches using the `show vlan brief` command.
 
-```text
-show vlan brief
-```
-
-The required VLANs were verified:
+The required VLANs were configured:
 
 * VLAN 10 – Admin
 * VLAN 20 – Staff
@@ -21,150 +17,170 @@ The required VLANs were verified:
 * VLAN 50 – Guest
 * VLAN 99 – Management
 
-Evidence:
-
-`../evidence/vlan/vlan-configuration.png`
-
-## 3. IPv4 Connectivity Tests
-
-### Admin → Staff
-
-**Source:** `PC-ADMIN`
-**Destination:** `172.30.4.66`
-
-**Result:** Successful — 4/4 packets received, 0% packet loss.
+The VLAN configuration was successfully displayed on SW1.
 
 Evidence:
 
-`../evidence/ipv4/admin-to-staff-ipv4.png`
+`evidence/vlan/vlan-configuration.png`
 
-### Admin → Lab
+---
 
-**Source:** `PC-ADMIN`
-**Destination:** `172.30.4.2`
+## 3. IPv4 Connectivity Testing
 
-**Result:** Successful — 4/4 packets received, 0% packet loss.
+IPv4 connectivity between the internal networks was tested using ICMP ping.
 
-Evidence:
+The following tests were successful:
 
-`../evidence/ipv4/admin-to-lab-ipv4.png`
+* Admin → Staff
+* Admin → Lab
+* Admin → Library
 
-### Admin → Library
-
-**Source:** `PC-ADMIN`
-**Destination:** `172.30.4.226`
-
-**Result:** Successful — 4/4 packets received, 0% packet loss.
+These tests confirmed that the configured IPv4 addressing, VLAN segmentation and inter-VLAN routing were functioning.
 
 Evidence:
 
-`../evidence/ipv4/admin-to-library-ipv4.png`
+* `evidence/ipv4/admin-to-staff-ipv4.png`
+* `evidence/ipv4/admin-to-lab-ipv4.png`
+* `evidence/ipv4/admin-to-library-ipv4.png`
 
-These tests verify IPv4 connectivity between the Admin network and the Staff, Lab and Library VLANs through R1.
+---
 
-## 4. IPv6 Connectivity Tests
+## 4. IPv6 Connectivity Testing
 
-### Admin → Staff
+IPv6 connectivity was tested between different VLANs.
 
-**Source:** `PC-ADMIN`
-**Destination:** `2001:DB8:AC30:2::10`
+The following tests were successful:
 
-**Result:** Successful — 4/4 packets received, 0% packet loss.
+* Admin → Staff
+* Lab → Admin
 
-Evidence:
-
-`../evidence/ipv6/admin-to-staff-ipv6.png`
-
-### Lab → Admin
-
-**Source:** `PC-LAB`
-**Destination:** `2001:DB8:AC30:1::10`
-
-**Result:** Successful — 4/4 packets received, 0% packet loss.
+These tests confirmed that the configured IPv6 addresses and router-on-a-stick interfaces allowed communication between the IPv6 VLAN networks.
 
 Evidence:
 
-`../evidence/ipv6/lab-to-admin-ipv6.png`
+* `evidence/ipv6/admin-to-staff-ipv6.png`
+* `evidence/ipv6/lab-to-admin-ipv6.png`
 
-These tests verify IPv6 connectivity between separate VLANs.
+---
 
 ## 5. IPv6 Routing Verification
 
-R1's IPv6 routing table was checked using:
+The IPv6 routing table on R1 was checked using:
 
 ```text
 show ipv6 route
 ```
 
-The routing table contained connected routes for the configured VLAN IPv6 networks.
+The routing table showed connected routes for the six configured IPv6 VLAN networks.
+
+This verified that R1 had the required IPv6 networks available through its VLAN subinterfaces.
 
 Evidence:
 
-`../evidence/ipv6/ipv6-routing-table.png`
+`evidence/ipv6/ipv6-routing-table.png`
 
-This confirms that R1 has IPv6 routes for the configured VLAN networks.
+---
 
-## 6. Guest Isolation Verification
+## 6. Guest Wi-Fi Isolation Testing
 
-The Guest isolation ACL was checked using:
+The Guest Wi-Fi network was tested using a wireless test laptop connected to the `GUEST` SSID.
+
+The test laptop was configured with:
+
+* IPv4 address: `172.30.4.131`
+* Subnet mask: `255.255.255.192`
+* Default gateway: `172.30.4.129`
+
+First, the Guest device successfully reached its own default gateway:
+
+```text
+ping 172.30.4.129
+```
+
+This confirmed that the Guest device could communicate with the Guest VLAN gateway.
+
+The Guest device was then tested against internal networks. The following traffic was blocked:
+
+| Test               | Result  |
+| ------------------ | ------- |
+| Guest → Admin      | Blocked |
+| Guest → Staff      | Blocked |
+| Guest → Lab        | Blocked |
+| Guest → Library    | Blocked |
+| Guest → Management | Blocked |
+
+The Guest isolation is enforced using the `GUEST_ISOLATION` extended IPv4 ACL on R1.
+
+The ACL was also checked using:
 
 ```text
 show access-lists GUEST_ISOLATION
 ```
 
-The ACL contains rules denying Guest traffic to the internal Admin, Staff, Lab, Library and Management networks.
+The ACL counters confirmed that the configured deny rules were matching Guest traffic.
 
 Evidence:
 
-`../evidence/security/guest-isolation-acl.png`
+* `evidence/security/guest-to-gateway.png`
+* `evidence/security/guest-isolation-tests-1.1.png`
+* `evidence/security/guest-isolation-tests-1.2.png`
+* `evidence/security/guest-isolation-acl-results.png`
+* `evidence/security/guest-isolation-acl.png`
 
-The ACL is applied inbound on R1's Guest subinterface:
+---
+
+## 7. SSH Remote Management Testing
+
+SSH remote management was configured on R1 and the switches.
+
+SSH connectivity was successfully tested from PC-ADMIN to the network devices.
+
+The following devices were successfully accessed using SSH:
+
+* R1
+* SW2
+* SW3
+* SW4
+* SW5
+
+For example, R1 was accessed using:
 
 ```text
-Gi0/0.50
+ssh -l admin 172.30.5.1
 ```
 
-This verifies the configuration used to implement the Guest Wi-Fi isolation requirement.
-
-## 7. SSH Verification
-
-SSH was configured for secure remote management of the network devices.
-
-The SSH configuration includes:
-
-```text
-line vty 0 4
- login local
- transport input ssh
-```
+The successful login confirmed that SSH remote management was operational.
 
 Evidence:
 
-`../evidence/ssh/ssh-configuration.png`
+* `evidence/ssh/ssh-configuration.png`
+* `evidence/ssh/ssh-r1-test.png`
 
-A successful SSH connection from PC-ADMIN to R1 was also tested.
-
-Evidence:
-
-`../evidence/ssh/ssh-r1-test.png`
-
-The successful connection confirms that SSH remote management is operational.
+---
 
 ## 8. Test Summary
 
-| Test                 | Result     |
-| -------------------- | ---------- |
-| VLAN configuration   | Verified   |
-| Admin → Staff IPv4   | Successful |
-| Admin → Lab IPv4     | Successful |
-| Admin → Library IPv4 | Successful |
-| Admin → Staff IPv6   | Successful |
-| Lab → Admin IPv6     | Successful |
-| IPv6 routing table   | Verified   |
-| Guest isolation ACL  | Verified   |
-| SSH configuration    | Verified   |
-| SSH connection to R1 | Successful |
+| Area            | Test                            | Result     |
+| --------------- | ------------------------------- | ---------- |
+| VLANs           | VLAN configuration verification | Successful |
+| IPv4            | Admin → Staff                   | Successful |
+| IPv4            | Admin → Lab                     | Successful |
+| IPv4            | Admin → Library                 | Successful |
+| IPv6            | Admin → Staff                   | Successful |
+| IPv6            | Lab → Admin                     | Successful |
+| IPv6            | Routing table verification      | Successful |
+| Guest Wi-Fi     | Guest → Gateway                 | Successful |
+| Guest isolation | Guest → Admin                   | Blocked    |
+| Guest isolation | Guest → Staff                   | Blocked    |
+| Guest isolation | Guest → Lab                     | Blocked    |
+| Guest isolation | Guest → Library                 | Blocked    |
+| Guest isolation | Guest → Management              | Blocked    |
+| SSH             | PC-ADMIN → R1/SW2–SW5           | Successful |
+
+---
 
 ## 9. Conclusion
 
-The testing confirms the main implemented networking functions required for Milestone 2, including VLAN segmentation, IPv4 connectivity, IPv6 connectivity and routing, Guest network isolation configuration and SSH-based remote management.
+The implemented network was tested against the main functionality required for Milestone 2. Internal IPv4 and IPv6 connectivity was verified, the IPv6 routing table was checked, Guest Wi-Fi isolation was tested using a wireless test device, and SSH remote management was successfully demonstrated.
+
+The test results provide evidence that the implemented configuration operates as designed for the tested network requirements.
