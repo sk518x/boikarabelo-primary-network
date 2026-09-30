@@ -130,6 +130,7 @@ show vlan brief
 show ip interface brief
 show ipv6 interface brief
 show ipv6 route
+show ipv6 access-list GUEST_V6_ISOLATION
 show access-lists GUEST_ISOLATION
 ```
 
