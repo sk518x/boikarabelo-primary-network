@@ -287,71 +287,72 @@ SSH was tested from PC-ADMIN to the network devices, including R1 and the access
 
 ---
 
-## 10. Testing and Verification
+## Testing and Verification
 
-Testing was performed in Cisco Packet Tracer after implementation.
-
-### VLAN Verification
-
-The VLAN configuration was verified using:
-
-```text
-show vlan brief
-```
-
-The required VLANs were confirmed on the switches.
+Testing was performed in Cisco Packet Tracer to verify VLAN configuration, IPv4 and IPv6 connectivity, Guest Wi-Fi isolation and SSH remote management.
 
 ### IPv4 Connectivity
 
-The following IPv4 connectivity tests were performed:
+Successful IPv4 connectivity was verified between:
 
-| Source   | Destination | Result     |
-| -------- | ----------- | ---------- |
-| PC-ADMIN | PC-STAFF    | Successful |
-| PC-ADMIN | PC-LAB      | Successful |
-| PC-ADMIN | PC-LIBRARY  | Successful |
+* Admin → Staff
+* Admin → Lab
+* Admin → Library
 
-The tests demonstrated IPv4 connectivity between the relevant VLANs through R1.
+Evidence:
+
+* `evidence/ipv4/admin-to-staff-ipv4.png`
+* `evidence/ipv4/admin-to-lab-ipv4.png`
+* `evidence/ipv4/admin-to-library-ipv4.png`
 
 ### IPv6 Connectivity
 
-The following IPv6 tests were performed:
+Successful IPv6 connectivity was verified between:
 
-| Source   | Destination | Result     |
-| -------- | ----------- | ---------- |
-| PC-ADMIN | PC-STAFF    | Successful |
-| PC-LAB   | PC-ADMIN    | Successful |
+* Admin → Staff
+* Lab → Admin
 
-The tests demonstrated IPv6 connectivity between separate VLANs.
+The IPv6 routing table on R1 was also checked and showed the configured VLAN networks as connected routes.
 
-### IPv6 Routing
+Evidence:
 
-R1 was checked using:
+* `evidence/ipv6/admin-to-staff-ipv6.png`
+* `evidence/ipv6/lab-to-admin-ipv6.png`
+* `evidence/ipv6/ipv6-routing-table.png`
 
-```text
-show ipv6 interface brief
-show ipv6 route
-```
+### Guest Wi-Fi Isolation
 
-The configured IPv6 interfaces and connected VLAN routes were verified.
+Guest Wi-Fi isolation was tested using a wireless test laptop connected to the `GUEST` SSID.
 
-### Guest Isolation
+The Guest device successfully reached its Guest gateway at `172.30.4.129`. Attempts to reach internal networks were blocked by the `GUEST_ISOLATION` extended IPv4 ACL configured on R1.
 
-The Guest isolation ACL was checked using:
+| Test               | Result     |
+| ------------------ | ---------- |
+| Guest → Gateway    | Successful |
+| Guest → Admin      | Blocked    |
+| Guest → Staff      | Blocked    |
+| Guest → Lab        | Blocked    |
+| Guest → Library    | Blocked    |
+| Guest → Management | Blocked    |
 
-```text
-show access-lists GUEST_ISOLATION
-```
+The ACL was also checked on R1 to verify that the Guest traffic matched the configured deny rules.
 
-The configuration confirms that Guest traffic is denied access to the specified internal networks.
+Evidence:
 
-### SSH
+* `evidence/security/guest-to-gateway.png`
+* `evidence/security/guest-isolation-tests-1.1.png`
+* `evidence/security/guest-isolation-tests-1.2.png`
+* `evidence/security/guest-isolation-acl-results.png`
+* `evidence/security/guest-isolation-acl.png`
 
-SSH configuration and connectivity were tested from PC-ADMIN.
+### SSH Remote Management
 
-The successful SSH test confirms that remote management is operational.
+SSH was tested from PC-ADMIN to R1 and the switches. Successful SSH access was demonstrated for R1, SW2, SW3, SW4 and SW5.
 
-Detailed testing information is documented in [`docs/testing.md`](docs/testing.md).
+Evidence:
+
+* `evidence/ssh/ssh-configuration.png`
+* `evidence/ssh/ssh-r1-test.png`
 
 ---
 
