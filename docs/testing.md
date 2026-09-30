@@ -122,6 +122,9 @@ The Guest IPv6 access-control list, `GUEST_V6_ISOLATION`, was applied inbound on
 interface gigabitEthernet 0/0.50
 ipv6 traffic-filter GUEST_V6_ISOLATION in
 ```
+The IPv6 Guest isolation ACL was verified on R1 using:
+
+show ipv6 access-list GUEST_V6_ISOLATION
 
 The Guest IPv6 connection was tested against the Guest VLAN gateway. The gateway connection was successful.
 
@@ -162,10 +165,10 @@ The results demonstrate that the Guest network is separated from the internal sc
 
 The following evidence supports the Guest Wi-Fi security implementation:
 
-evidence/security/guest-isolation-acl.png – IPv4 Guest isolation ACL
-evidence/security/guest-to-gateway.png – Successful Guest-to-gateway test
-evidence/security/guest-isolation-tests.png – IPv4 Guest isolation tests
-evidence/security/guest-ipv6-isolation.png – IPv6 Guest isolation test
+- `evidence/security/guest-isolation-acl.png` – IPv4 Guest isolation ACL
+- `evidence/security/guest-to-gateway.png` – Successful Guest-to-gateway test
+- `evidence/security/guest-isolation-tests.png` – IPv4 Guest isolation tests
+- `evidence/security/guest-ipv6-isolation.png` – IPv6 Guest isolation test
 
 ---
 
