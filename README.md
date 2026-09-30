@@ -217,47 +217,20 @@ The same approach is used for the remaining VLANs.
 
 ---
 
-## 8. Guest Wi-Fi and Isolation
+## 8.Guest Wi-Fi and Isolation
 
-VLAN 50 is dedicated to Guest Wi-Fi.
+VLAN 50 is dedicated to Guest Wi-Fi to accommodate visitors while keeping Guest traffic separate from internal school resources.
 
-The wireless access point uses the SSID:
+Guest isolation is implemented using access-control lists on R1:
 
-```text
-GUEST
-```
+* `GUEST_ISOLATION` controls Guest IPv4 traffic.
+* `GUEST_V6_ISOLATION` controls Guest IPv6 traffic.
 
-The Guest IPv4 network is:
+The Guest network is prevented from accessing the Admin, Staff, Lab, Library and Management networks over both IPv4 and IPv6.
 
-```text
-Network: 172.30.4.128/26
-Gateway: 172.30.4.129
-```
+Guest connectivity was tested using a temporary wireless test laptop. The tests confirmed that the Guest device could reach its own gateway while access to the internal school networks was blocked.
 
-An extended IPv4 ACL named `GUEST_ISOLATION` was configured on R1.
-
-The ACL denies Guest traffic to the internal:
-
-* Admin network
-* Staff network
-* Lab network
-* Library network
-* Management network
-
-The ACL is applied inbound to the Guest subinterface:
-
-```text
-interface gigabitEthernet 0/0.50
- ip access-group GUEST_ISOLATION in
-```
-
-The ACL was verified using:
-
-```text
-show access-lists GUEST_ISOLATION
-```
-
-This implements the requirement that Guest Wi-Fi be isolated from internal school resources.
+The Guest test device is used for testing evidence only and is not part of the permanent school network design.
 
 ---
 
@@ -320,30 +293,28 @@ Evidence:
 * `evidence/ipv6/lab-to-admin-ipv6.png`
 * `evidence/ipv6/ipv6-routing-table.png`
 
-### Guest Wi-Fi Isolation
+### Testing Summary
 
-Guest Wi-Fi isolation was tested using a wireless test laptop connected to the `GUEST` SSID.
+| Test                            | Result     |
+| ------------------------------- | ---------- |
+| Admin → Staff IPv4              | Successful |
+| Admin → Lab IPv4                | Successful |
+| Admin → Library IPv4            | Successful |
+| Admin → Staff IPv6              | Successful |
+| Lab → Admin IPv6                | Successful |
+| IPv6 routing table verification | Successful |
+| Guest → IPv4 Gateway            | Successful |
+| Guest → Internal IPv4 Networks  | Blocked    |
+| Guest → IPv6 Gateway            | Successful |
+| Guest → Internal IPv6 Networks  | Blocked    |
+| SSH → R1                        | Successful |
+| SSH → SW2                       | Successful |
+| SSH → SW3                       | Successful |
+| SSH → SW4                       | Successful |
+| SSH → SW5                       | Successful |
 
-The Guest device successfully reached its Guest gateway at `172.30.4.129`. Attempts to reach internal networks were blocked by the `GUEST_ISOLATION` extended IPv4 ACL configured on R1.
+The testing results demonstrate IPv4 and IPv6 connectivity between required networks, Guest isolation from internal resources, IPv6 routing, and secure SSH remote management.
 
-| Test               | Result     |
-| ------------------ | ---------- |
-| Guest → Gateway    | Successful |
-| Guest → Admin      | Blocked    |
-| Guest → Staff      | Blocked    |
-| Guest → Lab        | Blocked    |
-| Guest → Library    | Blocked    |
-| Guest → Management | Blocked    |
-
-The ACL was also checked on R1 to verify that the Guest traffic matched the configured deny rules.
-
-Evidence:
-
-* `evidence/security/guest-to-gateway.png`
-* `evidence/security/guest-isolation-tests-1.1.png`
-* `evidence/security/guest-isolation-tests-1.2.png`
-* `evidence/security/guest-isolation-acl-results.png`
-* `evidence/security/guest-isolation-acl.png`
 
 ### SSH Remote Management
 
