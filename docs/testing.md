@@ -80,52 +80,92 @@ Evidence:
 `evidence/ipv6/ipv6-routing-table.png`
 
 ---
-
 ## 6. Guest Wi-Fi Isolation Testing
 
-The Guest Wi-Fi network was tested using a wireless test laptop connected to the `GUEST` SSID.
+The Guest Wi-Fi network uses VLAN 50 and the IPv4 subnet `172.30.4.128/26`. Guest traffic is restricted from accessing the internal school networks. Guest IPv6 traffic is also restricted from accessing the internal IPv6 networks.
 
-The test laptop was configured with:
+### 6.1 Guest IPv4 Isolation
+
+A temporary wireless test laptop, GUEST-TEST, was used to verify the Guest network. The device was configured with:
 
 * IPv4 address: `172.30.4.131`
 * Subnet mask: `255.255.255.192`
 * Default gateway: `172.30.4.129`
 
-First, the Guest device successfully reached its own default gateway:
+The Guest device was first tested against its own gateway. The test was successful, confirming that the Guest device could communicate with the Guest VLAN gateway.
 
-```text
-ping 172.30.4.129
-```
+The Guest device was then tested against the internal IPv4 networks:
 
-This confirmed that the Guest device could communicate with the Guest VLAN gateway.
+* Admin: `172.30.4.194`
+* Staff: `172.30.4.66`
+* Lab: `172.30.4.2`
+* Library: `172.30.4.226`
+* Management: `172.30.5.2`
 
-The Guest device was then tested against internal networks. The following traffic was blocked:
+These connections were blocked by the `GUEST_ISOLATION` IPv4 access-control list.
 
-| Test               | Result  |
-| ------------------ | ------- |
-| Guest → Admin      | Blocked |
-| Guest → Staff      | Blocked |
-| Guest → Lab        | Blocked |
-| Guest → Library    | Blocked |
-| Guest → Management | Blocked |
-
-The Guest isolation is enforced using the `GUEST_ISOLATION` extended IPv4 ACL on R1.
-
-The ACL was also checked using:
+The IPv4 Guest isolation ACL was verified on R1 using:
 
 ```text
 show access-lists GUEST_ISOLATION
 ```
 
-The ACL counters confirmed that the configured deny rules were matching Guest traffic.
+The ACL denies Guest traffic to the internal IPv4 networks and permits other IPv4 traffic.
 
-Evidence:
+### 6.2 Guest IPv6 Isolation
 
-* `evidence/security/guest-to-gateway.png`
-* `evidence/security/guest-isolation-tests-1.1.png`
-* `evidence/security/guest-isolation-tests-1.2.png`
-* `evidence/security/guest-isolation-acl-results.png`
-* `evidence/security/guest-isolation-acl.png`
+Guest IPv6 isolation was also implemented and tested to ensure that the Guest network could not bypass the security restrictions by using IPv6.
+
+The Guest IPv6 access-control list, `GUEST_V6_ISOLATION`, was applied inbound on the R1 Guest subinterface:
+
+```text
+interface gigabitEthernet 0/0.50
+ipv6 traffic-filter GUEST_V6_ISOLATION in
+```
+
+The Guest IPv6 connection was tested against the Guest VLAN gateway. The gateway connection was successful.
+
+The Guest device was then tested against the internal IPv6 networks:
+
+* Admin: `2001:DB8:AC30:1::/64`
+* Staff: `2001:DB8:AC30:2::/64`
+* Lab: `2001:DB8:AC30:3::/64`
+* Library: `2001:DB8:AC30:4::/64`
+* Management: `2001:DB8:AC30:6::/64`
+
+The tests to the internal IPv6 networks were blocked by the `GUEST_V6_ISOLATION` access-control list.
+
+This confirms that Guest isolation is implemented for both IPv4 and IPv6 traffic.
+
+### 6.3 Guest Isolation Result
+
+The Guest Wi-Fi network was successfully tested for isolation from the internal school networks.
+
+| Test                       | Result     |
+| -------------------------- | ---------- |
+| Guest → IPv4 Guest Gateway | Successful |
+| Guest → Admin IPv4         | Blocked    |
+| Guest → Staff IPv4         | Blocked    |
+| Guest → Lab IPv4           | Blocked    |
+| Guest → Library IPv4       | Blocked    |
+| Guest → Management IPv4    | Blocked    |
+| Guest → IPv6 Guest Gateway | Successful |
+| Guest → Admin IPv6         | Blocked    |
+| Guest → Staff IPv6         | Blocked    |
+| Guest → Lab IPv6           | Blocked    |
+| Guest → Library IPv6       | Blocked    |
+| Guest → Management IPv6    | Blocked    |
+
+The results demonstrate that the Guest network is separated from the internal school networks while maintaining connectivity to its own gateway.
+
+### Guest Isolation Evidence
+
+The following evidence supports the Guest Wi-Fi security implementation:
+
+evidence/security/guest-isolation-acl.png – IPv4 Guest isolation ACL
+evidence/security/guest-to-gateway.png – Successful Guest-to-gateway test
+evidence/security/guest-isolation-tests.png – IPv4 Guest isolation tests
+evidence/security/guest-ipv6-isolation.png – IPv6 Guest isolation test
 
 ---
 
