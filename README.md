@@ -287,7 +287,7 @@ SSH was tested from PC-ADMIN to the network devices, including R1 and the access
 
 ---
 
-## Testing and Verification
+## 10. Testing and Verification
 
 Testing was performed in Cisco Packet Tracer to verify VLAN configuration, IPv4 and IPv6 connectivity, Guest Wi-Fi isolation and SSH remote management.
 
